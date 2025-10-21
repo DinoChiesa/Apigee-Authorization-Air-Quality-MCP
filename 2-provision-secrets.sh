@@ -25,15 +25,25 @@ import_secret_and_grant_access() {
     fi
   fi
 
-  # AI! Modify this logic to check to see if the principal "serviceAccount:${sa_email}"
-  # has secretAccessor role, and only use add-iam-policy-binding if necessary.
-  if ! gcloud secrets add-iam-policy-binding "projects/${project}/secrets/${secret_name}" \
-    --project "${project}" \
-    --member "serviceAccount:${sa_email}" \
-    --role "roles/secretmanager.secretAccessor"; then
-    printf "\nCould not apply the role for that secret.\n"
-    printf "Aborting.\n"
-    exit 1
+  local member="serviceAccount:${sa_email}"
+  local role="roles/secretmanager.secretAccessor"
+
+  existing_binding=$(gcloud secrets get-iam-policy "${secret_name}" --project="${project}" \
+    --filter="bindings.role='${role}' AND bindings.members:'${member}'" \
+    --format="value(bindings.role)" --quiet)
+
+  if [[ -n "${existing_binding}" ]]; then
+    printf "\nThe service account (%s) already has the secretAccessor role for secret (%s).\n" "${sa_email}" "${secret_name}"
+  else
+    printf "\nGranting the secretAccessor role to service account (%s) for secret (%s).\n" "${sa_email}" "${secret_name}"
+    if ! gcloud secrets add-iam-policy-binding "${secret_name}" \
+      --project "${project}" \
+      --member "${member}" \
+      --role "${role}" --quiet; then
+      printf "\nCould not apply the role for that secret.\n"
+      printf "Aborting.\n"
+      exit 1
+    fi
   fi
 }
 
