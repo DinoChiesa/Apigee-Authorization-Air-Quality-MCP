@@ -2,12 +2,11 @@
 # -*- mode:shell-script; coding:utf-8; -*-
 
 set -e
-sa_name=air-quality-mcp-sa
 
 source ./lib/utils.sh
 
 import_secret_and_grant_access() {
-  local secret_name secret_value sa_email
+  local secret_name secret_value sa_email project member role
   secret_name=$1
   secret_value=$2
   sa_email=$3
@@ -25,8 +24,8 @@ import_secret_and_grant_access() {
     fi
   fi
 
-  local member="serviceAccount:${sa_email}"
-  local role="roles/secretmanager.secretAccessor"
+ member="serviceAccount:${sa_email}"
+ role="roles/secretmanager.secretAccessor"
 
   existing_binding=$(gcloud secrets get-iam-policy "${secret_name}" --project="${project}" \
     --filter="bindings.role='${role}' AND bindings.members:'${member}'" \
@@ -47,10 +46,10 @@ import_secret_and_grant_access() {
   fi
 }
 
-check_shell_variables GOOGLE_CLOUD_PROJECT TOMTOM_API_KEY OPENAQ_API_KEY
+check_shell_variables CLOUDRUN_PROJECT_ID TOMTOM_API_KEY OPENAQ_API_KEY CLOUDRUN_SHORT_SA
 
-sa_email="${sa_name}@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com"
+sa_email="${CLOUDRUN_SHORT_SA}@${CLOUDRUN_PROJECT_ID}.iam.gserviceaccount.com"
 
-import_secret_and_grant_access "tomtom-api-key" "$TOMTOM_API_KEY" "$sa_email" "$GOOGLE_CLOUD_PROJECT "
+import_secret_and_grant_access "tomtom-api-key" "$TOMTOM_API_KEY" "$sa_email" "$CLOUDRUN_PROJECT_ID"
 
-import_secret_and_grant_access "openaq-api-key" "$OPENAQ_API_KEY" "$sa_email" "$GOOGLE_CLOUD_PROJECT "
+import_secret_and_grant_access "openaq-api-key" "$OPENAQ_API_KEY" "$sa_email" "$CLOUDRUN_PROJECT_ID"

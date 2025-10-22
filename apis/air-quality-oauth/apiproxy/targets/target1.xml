@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TargetEndpoint name="target1">
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>AM-Inject-User-Info-Header</Name>
+      </Step>
+    </Request>
+    <Response/>
+  </PreFlow>
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response/>
+  </PostFlow>
+  <Flows/>
+  <HTTPTargetConnection>
+    <Properties/>
+    <!-- the following will be changed at deployment time by
+         9-import-and-deploy-apigee-proxies.sh -->
+    <URL>https://mcp-service-WILL-BE-REPLACED.a.run.app</URL>
+  </HTTPTargetConnection>
+</TargetEndpoint>

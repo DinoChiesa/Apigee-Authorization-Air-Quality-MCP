@@ -1,0 +1,69 @@
+<ProxyEndpoint name="well-known-oauth-protected-resource">
+
+  <HTTPProxyConnection>
+    <!-- per IETF RFC 8414 Section 3 -->
+    <BasePath>/.well-known/oauth-protected-resource/air-quality-oauth/mcp</BasePath>
+  </HTTPProxyConnection>
+
+  <FaultRules/>
+  <DefaultFaultRule name="default-fault-rule">
+    <Step>
+      <Name>AM-Inject-Proxy-Revision-Header</Name>
+    </Step>
+    <AlwaysEnforce>true</AlwaysEnforce>
+  </DefaultFaultRule>
+
+  <PreFlow name="PreFlow">
+    <Response>
+    </Response>
+  </PreFlow>
+
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response>
+      <Step>
+        <Name>AM-Clean-Response-Headers</Name>
+      </Step>
+      <Step>
+        <Name>AM-Inject-Proxy-Revision-Header</Name>
+      </Step>
+    </Response>
+  </PostFlow>
+
+  <PostClientFlow name="PostFlow">
+    <Request/>
+    <Response>
+    </Response>
+  </PostClientFlow>
+
+  <Flows>
+    <Flow name="oauth-protected-resource-metadata">
+      <!-- full path will be eg,
+           /.well-known/oauth-protected-resource/mcp-access-control/mcp/ -->
+      <Condition>
+        proxy.pathsuffix ~~ "/?" AND request.verb = "GET"
+      </Condition>
+      <Response>
+        <Step>
+          <Name>JS-Extract-Protected-Resource-Path</Name>
+        </Step>
+        <Step>
+          <Name>AM-OAuth-Protected-Resource-Response</Name>
+        </Step>
+      </Response>
+    </Flow>
+
+    <Flow name="unknown-request">
+      <Request>
+        <Step>
+          <Name>RF-Unknown-Request</Name>
+        </Step>
+      </Request>
+      <Response/>
+    </Flow>
+
+  </Flows>
+
+  <RouteRule name='loopback'/>
+
+</ProxyEndpoint>
