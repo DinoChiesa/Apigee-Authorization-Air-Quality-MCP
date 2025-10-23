@@ -12,6 +12,10 @@
     <Step>
       <Name>AM-Diags</Name>
     </Step>
+    <Step>
+      <Name>AM-JSONRPC-Authorization-Error</Name>
+      <Condition>JWT.failed = true</Condition>
+    </Step>
     <AlwaysEnforce>true</AlwaysEnforce>
   </DefaultFaultRule>
 
@@ -49,12 +53,12 @@
             This flow checks authorization only for MCP tools/call .
         -->
         <Step>
-          <Condition>NOT (request.header.content-type = "application/json")</Condition>
+          <Condition>(request.verb = "POST") and NOT (request.header.content-type = "application/json")</Condition>
           <Name>RF-Invalid-Media-Type</Name>
         </Step>
 
         <Step>
-          <Name>AM-Extract-JSONRPC-Method</Name>
+          <Name>AM-Extract-JSONRPC-Request-Data</Name>
         </Step>
 
         <Step>

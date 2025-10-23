@@ -1,4 +1,4 @@
-<AssignMessage name='AM-Extract-JSONRPC-Method'>
+<AssignMessage name='AM-Extract-JSONRPC-Request-Data'>
 
 <!--
   <AssignVariable>
@@ -16,6 +16,12 @@
 -->
 
   <!-- From the JSONRPC payload -->
+  <AssignVariable>
+    <Name>extracted.request_id</Name>
+    <Template>{jsonPath('$.id',request.content)}</Template>
+    <Value>unset</Value>
+  </AssignVariable>
+
   <AssignVariable>
     <Name>extracted.mcp_method</Name>
     <Template>{jsonPath('$.method',request.content)}</Template>

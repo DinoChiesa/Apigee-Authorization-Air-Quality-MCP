@@ -1,0 +1,24 @@
+<AssignMessage name='AM-JSONRPC-Authorization-Error'>
+  <AssignVariable>
+    <Name>default-message</Name>
+    <Value>Unknown error</Value>
+  </AssignVariable>
+
+  <AssignVariable>
+    <Name>actual-message</Name>
+    <Template>{firstnonnull(jwt.VerifyJWT-1.error,default-message)}</Template>
+  </AssignVariable>
+
+  <Set>
+    <Payload contentType='application/json'>{
+  "jsonrpc": "2.0",
+  "id": "{extracted.request_id}",
+  "error": {
+    "code": -32001,
+    "message": "Unauthorized: {escapeJSON(actual-message)}"
+  }
+}
+</Payload>
+    <StatusCode>200</StatusCode>
+  </Set>
+</AssignMessage>
