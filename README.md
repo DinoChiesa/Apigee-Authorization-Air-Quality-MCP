@@ -13,6 +13,7 @@ official Google product.
 
 [This Screecast](https://youtu.be/za69HZuhNiE) walks through the process.
 [![screencast](./img/C4h46qTuWLU5pKA.png)](https://youtu.be/za69HZuhNiE)
+![screencast](./img/C4h46qTuWLU5pKA.png)
 
 ## Using it
 
