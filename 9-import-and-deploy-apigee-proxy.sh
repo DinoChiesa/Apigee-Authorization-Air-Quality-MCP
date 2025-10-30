@@ -100,17 +100,18 @@ if [[ ! -d "$HOME/.apigeecli/bin" ]]; then
 fi
 export PATH=$PATH:$HOME/.apigeecli/bin
 
-# AI! insert logic here to check for a positional command-line argument.
-# If specified, check that it is valid. It must be one of the subdirectories of the
-# apis/ directory . If not, printf an appropriate message and exit.
-# IF valid, then set the variable `proxy_name` to the value of $0.
-#
-# IF there is no argument, then printf a message saying "defaulting to value of $proxy_name for proxy_name"
-#
-
-
-
-
+if [[ -n "$1" ]]; then
+  if [[ -d "apis/$1" ]]; then
+    proxy_name="$1"
+    printf "Using specified proxy: %s\n" "$proxy_name"
+  else
+    printf "Error: Directory 'apis/%s' not found.\n" "$1" >&2
+    printf "The specified proxy name is not valid.\n" >&2
+    exit 1
+  fi
+else
+  printf "No proxy name specified. Defaulting to '%s'.\n" "$proxy_name"
+fi
 
 if ! gcloud run services describe "${CLOUDRUN_SERVICE_NAME}" \
   --project "$CLOUDRUN_PROJECT_ID" --format='value(status.url)' 2>&1 >>/dev/null; then
