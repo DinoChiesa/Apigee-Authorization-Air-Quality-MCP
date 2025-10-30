@@ -106,7 +106,8 @@ if [[ -n "$1" ]]; then
     printf "Using specified proxy: %s\n" "$proxy_name"
   else
     printf "Error: Directory 'apis/%s' not found.\n" "$1" >&2
-    printf "The specified proxy name is not valid.\n" >&2
+    # AI! in the following, replace "XXX, YYY, ZZZ" with actual candidates from the apis subdirectory.
+    printf "You must specify one of  {XXX, YYY, ZZZ}.\n" >&2
     exit 1
   fi
 else
