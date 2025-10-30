@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-proxy_name="air-quality-oauth"
+proxy_name="air-quality-oauth-vscode"
 need_wait=0
 
 source ./lib/utils.sh
@@ -100,6 +100,18 @@ if [[ ! -d "$HOME/.apigeecli/bin" ]]; then
 fi
 export PATH=$PATH:$HOME/.apigeecli/bin
 
+# AI! insert logic here to check for a positional command-line argument.
+# If specified, check that it is valid. It must be one of the subdirectories of the
+# apis/ directory . If not, printf an appropriate message and exit.
+# IF valid, then set the variable `proxy_name` to the value of $0.
+#
+# IF there is no argument, then printf a message saying "defaulting to value of $proxy_name for proxy_name"
+#
+
+
+
+
+
 if ! gcloud run services describe "${CLOUDRUN_SERVICE_NAME}" \
   --project "$CLOUDRUN_PROJECT_ID" --format='value(status.url)' 2>&1 >>/dev/null; then
   printf "The %s service is not deployed to cloud run. Please deploy it.\n" "$CLOUDRUN_SERVICE_NAME"
@@ -113,13 +125,14 @@ tmpdir=$(mktemp -d)
 printf "Temporary directory: %s\n" "$tmpdir"
 cp -r ./apis "$tmpdir"
 
+## ====================================================================
+## Replace target for backend
 printf "The URL for the Backend Service in the proxy should be %s...\n" "${service_url}"
 TARGET_1="$tmpdir/apis/${proxy_name}/apiproxy/targets/target1.xml"
 if [[ ! -f "$TARGET_1" ]]; then
   printf "Missing the target in the API Proxy. %s\n" "$TARGET_1"
   exit 1
 fi
-
 cur_url=$(get_element_text "URL" "${TARGET_1}")
 if [[ ! "x${cur_url}" = "x${service_url}" ]]; then
   printf "Replacing the target URL in the API Proxy...\n"
@@ -127,6 +140,11 @@ if [[ ! "x${cur_url}" = "x${service_url}" ]]; then
 else
   printf "The target URL for the API Proxy is unchanged...\n"
 fi
+
+## ====================================================================
+## Replace apiproxy name
+
+well-known-oauth-protected-resource
 
 printf "Replacing property values for OIDC Server (%s)...\n" "${OIDC_SERVER}"
 replace_property_value "oidc_server" "$OIDC_SERVER" \
@@ -136,6 +154,8 @@ replace_property_value "oidc_server_issuer" "${OIDC_SERVER}" \
 replace_property_value "oidc_server_jwks" "${OIDC_SERVER}.well-known/jwks.json" \
                        "$tmpdir/apis/${proxy_name}/apiproxy/resources/properties/settings.properties"
 
+
+
 TOKEN=$(gcloud auth print-access-token)
 import_and_deploy_apiproxy "$proxy_name" "$tmpdir/apis/${proxy_name}" "${APIGEE_PROJECT_ID}" "$APIGEE_ENV"
 
@@ -144,4 +164,4 @@ if [[ $need_wait -eq 1 ]]; then
   wait
 fi
 
-rm -fr $tmpdir
+# rm -fr $tmpdir
