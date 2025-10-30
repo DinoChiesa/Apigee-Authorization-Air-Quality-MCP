@@ -106,8 +106,8 @@ if [[ -n "$1" ]]; then
     printf "Using specified proxy: %s\n" "$proxy_name"
   else
     printf "Error: Directory 'apis/%s' not found.\n" "$1" >&2
-    # AI! in the following, replace "XXX, YYY, ZZZ" with actual candidates from the apis subdirectory.
-    printf "You must specify one of  {XXX, YYY, ZZZ}.\n" >&2
+    candidates=$(find apis -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | paste -sd "," -)
+    printf "You must specify one of {%s}.\n" "$candidates" >&2
     exit 1
   fi
 else
