@@ -2,6 +2,7 @@
 
   <HTTPProxyConnection>
     <!-- per IETF RFC 8414 Section 3 -->
+    <!-- This may get replaced by the deployment script. -->
     <BasePath>/.well-known/oauth-protected-resource/air-quality-oauth/mcp</BasePath>
   </HTTPProxyConnection>
 
@@ -30,23 +31,15 @@
     </Response>
   </PostFlow>
 
-  <PostClientFlow name="PostFlow">
-    <Request/>
-    <Response>
-    </Response>
-  </PostClientFlow>
-
   <Flows>
     <Flow name="oauth-protected-resource-metadata">
       <!-- full path will be eg,
-           /.well-known/oauth-protected-resource/mcp-access-control/mcp/ -->
+           /.well-known/oauth-protected-resource/path/to/mcp/server
+      -->
       <Condition>
-        proxy.pathsuffix ~~ "/?" AND request.verb = "GET"
+        (proxy.pathsuffix ~~ "/?") AND (request.verb = "GET")
       </Condition>
       <Response>
-        <Step>
-          <Name>JS-Extract-Protected-Resource-Path</Name>
-        </Step>
         <Step>
           <Name>AM-OAuth-Protected-Resource-Response</Name>
         </Step>

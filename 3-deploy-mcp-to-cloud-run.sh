@@ -3,11 +3,9 @@
 
 set -e
 
-
 source ./lib/utils.sh
 
 check_shell_variables CLOUDRUN_PROJECT_ID CLOUDRUN_REGION CLOUDRUN_SERVICE_NAME CLOUDRUN_SHORT_SA
-
 
 sa_email="${CLOUDRUN_SHORT_SA}@${CLOUDRUN_PROJECT_ID}.iam.gserviceaccount.com"
 

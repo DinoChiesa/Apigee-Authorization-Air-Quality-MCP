@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-proxy_name="air-quality-oauth-vscode"
+proxy_name="air-quality-oauth"
 need_wait=0
 
 source ./lib/utils.sh
@@ -88,6 +88,9 @@ replace_property_value() {
 
 
 # ====================================================================
+printf "\nThis script imports and deploys an API proxy to your Apigee environment,\n"
+printf "using some of the configuration values found in your environment.\n"
+
 check_shell_variables CLOUDRUN_SERVICE_NAME CLOUDRUN_PROJECT_ID \
   APIGEE_PROJECT_ID APIGEE_ENV APIGEE_HOST OIDC_SERVER
 
@@ -114,25 +117,29 @@ else
   printf "No proxy name specified. Defaulting to '%s'.\n" "$proxy_name"
 fi
 
+## ====================================================================
+## Find service url
 if ! gcloud run services describe "${CLOUDRUN_SERVICE_NAME}" \
   --project "$CLOUDRUN_PROJECT_ID" --format='value(status.url)' 2>&1 >>/dev/null; then
   printf "The %s service is not deployed to cloud run. Please deploy it.\n" "$CLOUDRUN_SERVICE_NAME"
   exit 1
 fi
-
 service_url=$(gcloud run services describe "${CLOUDRUN_SERVICE_NAME}" \
   --project "$CLOUDRUN_PROJECT_ID" --format='value(status.url)')
 
+## ====================================================================
+## Make a copy of APIs to prepare for replacement
 tmpdir=$(mktemp -d)
 printf "Temporary directory: %s\n" "$tmpdir"
-cp -r ./apis "$tmpdir"
+mkdir "${tmpdir}/apis"
+cp -r "./apis/$proxy_name" "$tmpdir/apis"
 
 ## ====================================================================
 ## Replace target for backend
 printf "The URL for the Backend Service in the proxy should be %s...\n" "${service_url}"
 TARGET_1="$tmpdir/apis/${proxy_name}/apiproxy/targets/target1.xml"
 if [[ ! -f "$TARGET_1" ]]; then
-  printf "Missing the target in the API Proxy. %s\n" "$TARGET_1"
+  printf "Missing the TargetEndpoint %s\n" "$TARGET_1"
   exit 1
 fi
 cur_url=$(get_element_text "URL" "${TARGET_1}")
@@ -144,10 +151,25 @@ else
 fi
 
 ## ====================================================================
-## Replace apiproxy name
+## Replace apiproxy name in the well-known-oauth-protected-resource proxyendpoint
+desired_url="/.well-known/oauth-protected-resource/${proxy_name}/mcp"
+printf "The BasePath for the well-known/oauth-protected-resource ProxyEndpoint should be %s...\n" "${desired_url}"
+PROXY_1="$tmpdir/apis/${proxy_name}/apiproxy/proxies/well-known-oauth-protected-resource.xml"
+if [[ ! -f "$PROXY_1" ]]; then
+  printf "Missing the ProxyEndpoint '%s'\n" "$PROXY_1"
+  exit 1
+fi
+cur_url=$(get_element_text "BasePath" "${PROXY_1}")
+if [[ ! "x${cur_url}" = "x${desired_url}" ]]; then
+  printf "Replacing the BasePath in the ProxyEndpoint...\n"
+  replace_element_text "URL" "${desired_url}" "${PROXY_1}"
+else
+  printf "The BasePath for the well-known/oauth-protected-resource ProxyEndpoint is unchanged...\n"
+fi
 
-well-known-oauth-protected-resource
 
+## ====================================================================
+## Set the property values
 printf "Replacing property values for OIDC Server (%s)...\n" "${OIDC_SERVER}"
 replace_property_value "oidc_server" "$OIDC_SERVER" \
                        "$tmpdir/apis/${proxy_name}/apiproxy/resources/properties/settings.properties"
@@ -155,7 +177,6 @@ replace_property_value "oidc_server_issuer" "${OIDC_SERVER}" \
                        "$tmpdir/apis/${proxy_name}/apiproxy/resources/properties/settings.properties"
 replace_property_value "oidc_server_jwks" "${OIDC_SERVER}.well-known/jwks.json" \
                        "$tmpdir/apis/${proxy_name}/apiproxy/resources/properties/settings.properties"
-
 
 
 TOKEN=$(gcloud auth print-access-token)

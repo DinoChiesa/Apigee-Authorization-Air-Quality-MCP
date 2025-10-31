@@ -1,15 +1,36 @@
 <RaiseFault name='RF-Missing-Authz-Header'>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
   <FaultResponse>
+    <AssignVariable>
+      <Name>regex1</Name>
+      <Value>(https:\/\/[^\/]+)\/.+</Value>
+    </AssignVariable>
+    <AssignVariable>
+      <Name>group1</Name>
+      <Value>$1</Value>
+    </AssignVariable>
+    <AssignVariable>
+      <Name>scheme-and-host</Name>
+      <Template>{replaceFirst(proxy.url,regex1,group1)}</Template>
+    </AssignVariable>
+
     <Set>
+      <Headers>
+        <!--
+            The use of apiproxy.name will work if and only if the api proxy
+            name is the same as the basepath (without leading slash) of the main
+            API proxy.
+         -->
+        <Header name='WWW-Authenticate'>Bearer realm="mcp", resource_metadata="{scheme-and-host}/.well-known/oauth-protected-resource/{apiproxy.name}/mcp"</Header>
+      </Headers>
       <Payload contentType='application/json'>{
   "error" : {
-    "code" : 400.01,
+    "code" : 401.01,
     "message" : "that request was invalid; pass an Authorization header."
   }
 }
 </Payload>
-      <StatusCode>400</StatusCode>
+      <StatusCode>401</StatusCode>
     </Set>
   </FaultResponse>
 </RaiseFault>

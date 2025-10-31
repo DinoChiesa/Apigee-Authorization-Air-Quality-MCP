@@ -14,7 +14,6 @@
 #
 
 import asyncio
-import json
 import logging
 import os
 import random
@@ -22,11 +21,10 @@ import sys
 import time
 import traceback
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, List, Optional, Sequence
+from typing import Annotated, List, Sequence
 
 import httpx
 from fastmcp import FastMCP
-from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from pydantic import BaseModel, Field
@@ -54,7 +52,7 @@ class UserInfoMiddleware(Middleware):
                 if user_info is not None:
                     logging.info(f"tool={tool.name}; {user_info}")
                 else:
-                    logging.info(f"user_info is unavailable")
+                    logging.info("user_info is unavailable")
                 # Here, could check user_info scope, against the tags
                 # on the tool, if desired.
 

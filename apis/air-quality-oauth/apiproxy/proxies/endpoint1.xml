@@ -49,9 +49,6 @@
     <Flow name="mcp">
       <Request>
 
-        <!--
-            This flow checks authorization only for MCP tools/call .
-        -->
         <Step>
           <Condition>(request.verb = "POST") and NOT (request.header.content-type = "application/json")</Condition>
           <Name>RF-Invalid-Media-Type</Name>
@@ -62,14 +59,11 @@
         </Step>
 
         <Step>
-          <Condition>extracted.mcp_method = "tools/call" AND
-                 request.header.authorization = null</Condition>
+          <Condition>request.header.authorization = null</Condition>
           <Name>RF-Missing-Authz-Header</Name>
         </Step>
 
         <Step>
-          <!-- special case tools/list, initialize, etc and allow it unauthenticated -->
-          <Condition>extracted.mcp_method = "tools/call"</Condition>
           <Name>VerifyJWT-1</Name>
         </Step>
 

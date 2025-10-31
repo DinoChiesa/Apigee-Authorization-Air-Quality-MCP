@@ -1,15 +1,32 @@
 <AssignMessage name='AM-OAuth-Protected-Resource-Response'>
 
   <AssignVariable>
+    <Name>wellknownprefix</Name>
+    <Value>/.well-known/oauth-protected-resource</Value>
+  </AssignVariable>
+  <AssignVariable>
+    <Name>nothing</Name>
+    <Value></Value>
+  </AssignVariable>
+  <AssignVariable>
+    <Name>extracted-resource-path</Name>
+    <Template>{replaceFirst(proxy.basepath,wellknownprefix,nothing)}</Template>
+  </AssignVariable>
+
+  <AssignVariable>
     <Name>resource_url</Name>
-    <Template>{client.scheme}://{request.header.host}{extracted.resource_path}</Template>
+    <Template>{client.scheme}://{request.header.host}{extracted-resource-path}</Template>
   </AssignVariable>
 
   <Set>
     <Payload contentType='application/json'>{
+  "resource_name": "Air quality MCP",
   "resource": "{resource_url}",
   "authorization_servers": [
       "{propertyset.settings.oidc_server}"
+  ],
+  "bearer_methods_supported": [
+    "header"
   ]
 }
 </Payload>
