@@ -1,7 +1,7 @@
 <ProxyEndpoint name="well-known-oauth-protected-resource">
 
   <HTTPProxyConnection>
-    <!-- per IETF RFC 8414 Section 3 -->
+    <!-- The URL format is specified in IETF RFC 9728 Section 3. -->
     <!-- This may get replaced by the deployment script. -->
     <BasePath>/.well-known/oauth-protected-resource/air-quality-oauth/mcp</BasePath>
   </HTTPProxyConnection>

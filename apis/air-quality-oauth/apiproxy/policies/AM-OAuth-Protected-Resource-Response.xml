@@ -18,7 +18,9 @@
     <Template>{client.scheme}://{request.header.host}{extracted-resource-path}</Template>
   </AssignVariable>
 
+
   <Set>
+    <!-- This response conforms with IETF RFC 9728 for Protected Resource Metadata -->
     <Payload contentType='application/json'>{
   "resource_name": "Air quality MCP",
   "resource": "{resource_url}",
