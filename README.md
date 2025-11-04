@@ -1,8 +1,17 @@
-# MCP Example - Air Quality Server
+# Governed MCP Example - Air Quality Server
 
-This is an example MCP Server, that provides air quality sensor readings for
-places. I built this to use as a basis for illustrating governance
-that I can apply on MCP, through Apigee.
+I built this to illustrate governance
+that I can apply on any MCP Server that can be accessed over HTTP, through Apigee.
+
+This repo contains:
+- an example MCP Server implemented in python, using [the FastMCP framework from
+  jlowin](https://github.com/jlowin/fastmcp). The server provides air quality
+  sensor readings for places. The server does not perform any authorization
+  check.
+
+- an example Apigee API Proxy, that acts as a facade for that Server, providing
+  the authorization check and a 401 WWW-Authenticate interception.
+
 
 ## Disclaimer
 
@@ -11,7 +20,7 @@ official Google product.
 
 ## Screencast
 
-[This Screecast](https://youtu.be/za69HZuhNiE) walks through the process.
+[This Screencast](https://youtu.be/za69HZuhNiE) walks through the process.
 [![screencast](./img/C4h46qTuWLU5pKA.png)](https://youtu.be/za69HZuhNiE)
 
 ## Using it
@@ -40,7 +49,9 @@ The setup scripts use things like apigeecli, and gcloud.
 3. You need to set up an OpenID Connect IDP, and provision a new
    Client ID and Secret pair. Steps for this varies, depending on
    your IDP. For setting up Auth0, you can try [these steps](./Auth0-setup.md).
-
+   
+   This example will work with any OIDC-compliant IDP, but I don't have the
+   specific steps for each IDP.
 
 
 ### Service and Proxy Provisioning Steps
@@ -91,6 +102,19 @@ The setup scripts use things like apigeecli, and gcloud.
    Replace the URL with the one from your Cloud Run service. Then, start Gemini CLI and you should be
    able to interact with the MCP Server.
 
+   You can also use VSCode as the MCP Client.  In that case, use this for your MCP configuration: 
+   ```
+   {
+     "servers": {
+       "air-quality": {
+         "url": "https://air-quality-1923-999999222.us-west1.run.app/mcp"
+         "type": "http"
+       }
+     },
+
+     "inputs": []
+   }
+   ```
 
 4. If you do not already have it, install the `apigeecli`
    ```sh
@@ -102,7 +126,8 @@ The setup scripts use things like apigeecli, and gcloud.
    ./9-import-and-deploy-apigee-proxy.sh
    ```
 
-   At this point you should be able to invoke the MCP through the Apigee proxy.
+   At this point, if you configure the Apigee proxy as the MCP endpoint, you
+   will see the OpenID Connect signin at the appropriate time.
 
    To do this with Gemini CLI, modify the  `~/.gemini/settings.json` file to
    provide this configuration:
@@ -123,8 +148,35 @@ The setup scripts use things like apigeecli, and gcloud.
      ....
    }
    ```
-   Replace the URL with the one from your Apigee proxy, and use the appropriate CLIENT ID and Secret from your
-   OpenID IDP. Then, re-start Gemini CLI and you should be able to interact with the service.
+   
+   Replace the URL with the one from your Apigee proxy, and use the appropriate
+   CLIENT ID and Secret from your OpenID IDP. Then, re-start Gemini CLI and type
+   `/mcp auth air-quality-oauth`, and you'll see the signin, and afterwards you
+   will be able to interact with the service.
+
+   If you are using VSCode as the MCP client, stop and restart VSCode, and when
+   you start the MCP server, you will see the signin experience. For VScode you
+   do not need to modify the mcp.json file, but _you will need to interactively
+   supply the client ID and Secret_ at runtime.
+
+## Discussion
+
+This is just an example. It illustrates the basics. Probably you will want to
+extend this idea for your purposes. Here are some ideas:
+
+1. **Multiple MCPs**. While this example shows a single API Proxy acting as a
+   facade for a single MCP Server, in the general case companies will have lots of
+   MCP servers. Using wildcard basepaths and a simple lookup table, it's trivial to
+   use a single API Proxy as a facade for a large number of MCP Servers.
+
+3. **API Product check**.  By including a VerifyAPIKey policy into the API
+   Proxy, you can also check the entitlement of the client for a particular API
+   Product.
+
+2. **User-based Authorization check**. By including a ServiceCallout to a policy
+   decision point (Something like OPA), you could include fine-grained dynamic
+   authorization check in the Apigee proxy.
+
 
 
 ## License
