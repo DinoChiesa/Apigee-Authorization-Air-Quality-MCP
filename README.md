@@ -61,10 +61,41 @@ The setup scripts use things like apigeecli, and gcloud.
 ### Service and Proxy Provisioning Steps
 
 0. With a text editor, open the [env-sample.txt](./env-sample.txt) file,
-   modify it to use your settings, and save it, to a file, perhaps named `.env`.
+   and modify it to use your settings.
+
+   About these settings:
+
+   | setting                 | description                                                                                     |
+   |-------------------------|-------------------------------------------------------------------------------------------------|
+   | `CLOUDRUN_PROJECT_ID`   | The ID of a GCP project, that will run the example MCP Server.                                  |
+   | `CLOUDRUN_REGION`       | The region (eg `us-west1`) to use for the Cloud Run service                                     |
+   | `APIGEE_PROJECT_ID`     | The GCP project hosting Apigee. This can be the same as the Cloud Run project, but need not be. |
+   | `APIGEE_ENV`            | the Apigee environment.                                                                         |
+   | `APIGEE_HOST`           | DNS hostname defined in Apigee that will allow invocation of the proxy                          |
+   | `OIDC_SERVER`           | # The base for your OIDC server. See comments below.                                            |
+   | `TOMTOM_API_KEY`        | An API key for TomTom that you can get for free from https://developer.tomtom.com/              |
+   | `OPENAQ_API_KEY`        | An API Key for Open AQ that you can get for free from  https://docs.openaq.org/                 |
+   | `CLOUDRUN_SERVICE_NAME` | Name of the Cloud Run service.                                                                  |
+   | `CLOUDRUN_SHORT_SA`     | Name of the service account used by the Cloud Run service.                                      |
+
+
+   Related to the OIDC Server: This example uses OAuth2 and authorization code grant. It requires
+   an OpenID Connect IDentity provider, something like Auth0 or Entra ID or ForgeRock and so on.
+   For an Auth0 tenant, the value will be something like https://dev-RANDOM-CHARS-HERE.us.auth0.com/ .
+
+
+   Whatever you use, it should comply with IETF RFC 8414; an MCP client will call
+   ```
+     GET ${OIDC_SERVER}/.well-known/oauth-authorization-server
+   ```
+   ...to discover the authorize and token endpoints.  These are usually
+   `/authorize` and `/token` , but not always.
+
+   After getting all these settings save the modifications to a file, perhaps named `.env`.
+
 
 1. Open a terminal window.
-   _Source_ the file to get all of those settings into your environment.
+   _Source_ the modified file you just saved, to get all of those settings into your environment.
    ```sh
    source .env
    ```
@@ -88,37 +119,39 @@ The setup scripts use things like apigeecli, and gcloud.
    You should now be able to interact with the MCP Server
    at the endpoint emitted by the deployment script.
 
-   You can use the [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) to do this.
+   - You can use the [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) to do this.
 
-
-   Or, to use [Gemini CLI](https://github.com/google-gemini/gemini-cli), open or create the file `~/.gemini/settings.json` and
-   provide this configuration:
-   ```json
-   {
-     "mcpServers": {
-       "air-quality": {
-         "httpUrl": "https://air-quality-1923-999999222.us-west1.run.app/mcp"
+   - Or, to use [Gemini CLI](https://github.com/google-gemini/gemini-cli), open
+     or create the file `~/.gemini/settings.json` and provide this
+     configuration:
+     
+     ```json
+     {
+       "mcpServers": {
+         "air-quality": {
+           "httpUrl": "https://air-quality-1923-999999222.us-west1.run.app/mcp"
+         }
        }
+       ....
      }
-     ....
-   }
-   ```
-   Replace the URL with the one from your Cloud Run service. Then, start Gemini CLI and you should be
-   able to interact with the MCP Server.
+     ```
+     
+     Replace the URL with the one from your Cloud Run service. Then, start
+     Gemini CLI and you should be able to interact with the MCP Server.
 
-   You can also use VSCode as the MCP Client.  In that case, use this for your MCP configuration:
-   ```
-   {
-     "servers": {
-       "air-quality": {
-         "url": "https://air-quality-1923-999999222.us-west1.run.app/mcp"
-         "type": "http"
-       }
-     },
+   - You can also use VSCode as the MCP Client.  In that case, use this for your MCP configuration:
+     ```
+     {
+       "servers": {
+         "air-quality": {
+           "url": "https://air-quality-1923-999999222.us-west1.run.app/mcp"
+           "type": "http"
+         }
+       },
 
-     "inputs": []
-   }
-   ```
+       "inputs": []
+     }
+     ```
 
 4. If you do not already have it, install the `apigeecli`
    ```sh

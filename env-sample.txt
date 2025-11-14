@@ -1,29 +1,38 @@
-CLOUDRUN_PROJECT_ID=my-gcp-project1
-CLOUDRUN_REGION=us-west1
+# The project that will run the MCP Server. 
+export CLOUDRUN_PROJECT_ID=my-gcp-project1
+export CLOUDRUN_REGION=us-west1
 
-# This project can be the same, but need not be
-APIGEE_PROJECT_ID=my-gcp-project1
-APIGEE_ENV=eval
+# The Apigee project can be the same, but need not be.
+export APIGEE_PROJECT_ID=my-gcp-project1
+export APIGEE_ENV=eval
 
 # hostname defined in Apigee that will allow invocation of the proxy
-APIGEE_HOST=apigee.hostname.for.me
+export APIGEE_HOST=apigee.hostname.for.me
 
 # The base for your OIDC server.
 # For an Auth0 tenant, this will be something like
 # https://dev-RANDOM-CHARS-HERE.us.auth0.com/ .
-# You can use other OIDC providers. The assumption is the
-# Authorize and token endpoints are /authorize and /token . 
-OIDC_SERVER=https://dev-RANDOM-CHARS-HERE.us.auth0.com/
+# You can use other OIDC providers.
+#
+# Whatever you use, it should comply with IETF RFC 8414;
+# an MCP client will call
+# 
+#    GET ${OIDC_SERVER}/.well-known/oauth-authorization-server
+#
+# ...to discover the authorize and token endpoints.  These are usually
+# /authorize and /token , but not always.
+#
+export OIDC_SERVER=https://dev-RANDOM-CHARS-HERE.us.auth0.com/
 
 # Keys for the services used by the MCP Service.
 # These are free to get; you need to signin to the
 # Websites for TomTom and OpenAQ to get credentials. 
-TOMTOM_API_KEY=example-only-48ec9ab1d5d7406cb6e8246a
-OPENAQ_API_KEY=example-only-not-a-real-key-396e119e7ec24b8b97801772204d6a8509
+export TOMTOM_API_KEY=example-only-48ec9ab1d5d7406cb6e8246a
+export OPENAQ_API_KEY=example-only-not-a-real-key-396e119e7ec24b8b97801772204d6a8509
 
 # You can change these if you like. 
-CLOUDRUN_SERVICE_NAME=air-quality-1923
-CLOUDRUN_SHORT_SA=air-quality-mcp-sa
+export CLOUDRUN_SERVICE_NAME=air-quality-1923
+export CLOUDRUN_SHORT_SA=air-quality-mcp-sa
 
 
 
