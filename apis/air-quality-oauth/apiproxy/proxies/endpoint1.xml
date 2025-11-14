@@ -20,12 +20,9 @@
   </DefaultFaultRule>
 
   <PreFlow name="PreFlow">
-    <Response>
-    </Response>
   </PreFlow>
 
   <PostFlow name="PostFlow">
-    <Request/>
     <Response>
       <Step>
         <Name>AM-Inject-Proxy-Revision-Header</Name>
@@ -34,9 +31,7 @@
   </PostFlow>
 
   <PostClientFlow name="PostFlow">
-    <Request/>
-    <Response>
-    </Response>
+    <Response/>
   </PostClientFlow>
 
   <EventFlow content-type="text/event-stream">
@@ -68,7 +63,7 @@
         </Step>
 
         <!--
-            Optional additional checks:
+            Include optional additional checks here:
             - check API Product Authorization here via VerifyAPIKey
             - enforce a rate limit via Quota
             - perform client-based routing

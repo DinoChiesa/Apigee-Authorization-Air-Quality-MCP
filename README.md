@@ -44,14 +44,18 @@ The setup scripts use things like apigeecli, and gcloud.
    - https://developer.tomtom.com/
    - https://docs.openaq.org/
 
-2. You also need an API Key for Gemini. Get one at https://ai.studio
-
-3. You need to set up an OpenID Connect IDP, and provision a new
+2. You need to set up an OpenID Connect IDP, and provision a new
    Client ID and Secret pair. Steps for this varies, depending on
    your IDP. For setting up Auth0, you can try [these steps](./Auth0-setup.md).
-   
+
    This example will work with any OIDC-compliant IDP, but I don't have the
    specific steps for each IDP.
+
+2. If you want to use Gemini CLI as your MCP client, you also need an API Key for Gemini. Get one at https://ai.studio
+
+   You can alternatively use VSCode as your MCP Client, or MCP Inspector, or some other client.
+   I don't have instructions for using those options.
+
 
 
 ### Service and Proxy Provisioning Steps
@@ -102,7 +106,7 @@ The setup scripts use things like apigeecli, and gcloud.
    Replace the URL with the one from your Cloud Run service. Then, start Gemini CLI and you should be
    able to interact with the MCP Server.
 
-   You can also use VSCode as the MCP Client.  In that case, use this for your MCP configuration: 
+   You can also use VSCode as the MCP Client.  In that case, use this for your MCP configuration:
    ```
    {
      "servers": {
@@ -126,38 +130,39 @@ The setup scripts use things like apigeecli, and gcloud.
    ./9-import-and-deploy-apigee-proxy.sh
    ```
 
-   At this point, if you configure the Apigee proxy as the MCP endpoint, you
-   will see the OpenID Connect signin at the appropriate time.
+   At this point, if you configure the Apigee proxy as the MCP endpoint
+   and use your MCP client (Gemini CLI, VSCode, MCP Inspector, and so on),
+   you should see the OpenID Connect signin at the appropriate time.
 
-   To do this with Gemini CLI, modify the  `~/.gemini/settings.json` file to
-   provide this configuration:
-   ```json
-   {
-     "mcpServers": {
-       "air-quality-oauth": {
-         "httpUrl": "https://apigee.endpoint.for.you/air-quality-oauth/mcp",
-         "timeout": 4400,
-         "oauth": {
-           "enabled": true,
-           "clientId": "OPENID_CLIENT_ID",
-           "clientSecret": "OPENID_CLIENT_SECRET",
-           "audiences": ["air-quality-oauth"]
+   - To do this with Gemini CLI, modify the  `~/.gemini/settings.json` file to
+     provide this configuration:
+     ```json
+     {
+       "mcpServers": {
+         "air-quality-oauth": {
+           "httpUrl": "https://apigee.endpoint.for.you/air-quality-oauth/mcp",
+           "timeout": 4400,
+           "oauth": {
+             "enabled": true,
+             "clientId": "OPENID_CLIENT_ID",
+             "clientSecret": "OPENID_CLIENT_SECRET",
+             "audiences": ["air-quality-oauth"]
+           }
          }
        }
+       ....
      }
-     ....
-   }
-   ```
-   
-   Replace the URL with the one from your Apigee proxy, and use the appropriate
-   CLIENT ID and Secret from your OpenID IDP. Then, re-start Gemini CLI and type
-   `/mcp auth air-quality-oauth`, and you'll see the signin, and afterwards you
-   will be able to interact with the service.
+     ```
 
-   If you are using VSCode as the MCP client, stop and restart VSCode, and when
-   you start the MCP server, you will see the signin experience. For VScode you
-   do not need to modify the mcp.json file, but _you will need to interactively
-   supply the client ID and Secret_ at runtime.
+     Replace the URL with the one from your Apigee proxy, and use the appropriate
+     CLIENT ID and Secret from your OpenID IDP. Then, re-start Gemini CLI and type
+     `/mcp auth air-quality-oauth`, and you'll see the signin, and afterwards you
+     will be able to interact with the service.
+
+   - If you are using VSCode as the MCP client, stop and restart VSCode, and when
+     you start the MCP server, you will see the signin experience. For VScode you
+     do not need to modify the mcp.json file, but _you will need to interactively
+     supply the client ID and Secret_ at runtime.
 
 ## Discussion
 
@@ -176,7 +181,6 @@ extend this idea for your purposes. Here are some ideas:
 2. **User-based Authorization check**. By including a ServiceCallout to a policy
    decision point (Something like OPA), you could include fine-grained dynamic
    authorization check in the Apigee proxy.
-
 
 
 ## License

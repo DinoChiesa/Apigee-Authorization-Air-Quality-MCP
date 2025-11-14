@@ -14,13 +14,7 @@
     <AlwaysEnforce>true</AlwaysEnforce>
   </DefaultFaultRule>
 
-  <PreFlow name="PreFlow">
-    <Response>
-    </Response>
-  </PreFlow>
-
   <PostFlow name="PostFlow">
-    <Request/>
     <Response>
       <Step>
         <Name>AM-Clean-Response-Headers</Name>
@@ -52,7 +46,6 @@
           <Name>RF-Unknown-Request</Name>
         </Step>
       </Request>
-      <Response/>
     </Flow>
 
   </Flows>
